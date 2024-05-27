@@ -13,7 +13,7 @@ import TeacherVue from '@/views/teacher/Teacher.vue'
 const routes = [
     {path:'/login',component: LoginVue},
     {
-        path:'/',component: LayoutVue,redirect:'/info',children:[
+        path:'/',component: LayoutVue,redirect:'/student',children:[
             {path: '/info',component: AdminUserInfoVue},
             {path: '/avatar',component: AdminUserAvatarVue},
             {path: '/resetpass',component: AdminUserRestPassVue},

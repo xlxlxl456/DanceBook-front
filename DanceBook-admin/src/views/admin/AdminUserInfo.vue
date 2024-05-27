@@ -2,12 +2,10 @@
 import { ref } from 'vue'
 import {ElMessage} from 'element-plus'
 import { adminUserInfoService,updateAdminUserInfoService } from '@/api/admin';
+import useAdminUserInfoStore from '@/stores/adminUserInfo';
 
-const userInfo=({
-    username:'',
-    phone:'',
-    email:''
-})
+const adminUserInfoStore = useAdminUserInfoStore()
+const adminUserInfo=ref({...adminUserInfoStore.info})
 
 const rules={
     username:[
@@ -26,6 +24,12 @@ const rules={
         {type:'email',message:'正しいメールアドレスを入力してください',trigger:'blur'}
     ]
 }
+const updateAdminUserInfo=async()=>{
+    let result = await updateAdminUserInfoService(adminUserInfo.value)
+    ElMessage.success(result.msg?result.msg:'更新成功')
+
+    adminUserInfoStore.setInfo(adminUserInfo.value)
+}
 </script>
 
 <template>
@@ -37,18 +41,18 @@ const rules={
         </template>
         <el-row>
             <el-col :span="12">
-                <el-form :model="userInfo" :rules="rules" label-width="100px" size="large">
+                <el-form :model="adminUserInfo" :rules="rules" label-width="100px" size="large" class="item-info">
                     <el-form-item label="ユーザー名" prop="username">
-                        <el-input v-model="userInfo.username"></el-input>
+                        <el-input v-model="adminUserInfo.username"></el-input>
                     </el-form-item>
                     <el-form-item label="電話番号" prop="phone">
-                        <el-input v-model="userInfo.phone"></el-input>
+                        <el-input v-model="adminUserInfo.phone"></el-input>
                     </el-form-item>
                     <el-form-item label="メール" prop="email">
-                        <el-input v-model="userInfo.email"></el-input>
+                        <el-input v-model="adminUserInfo.email"></el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="updateUserInfo">更新</el-button>
+                        <el-button type="primary" @click="updateAdminUserInfo">更新</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -56,6 +60,10 @@ const rules={
     </el-card>
 </template>
 
-<style lang="scss" scoped>
-
+<style lang="scss">
+.item-info .el-form-item__label{
+    display: block;
+    text-align: justify;
+    text-align-last: justify;
+}
 </style>

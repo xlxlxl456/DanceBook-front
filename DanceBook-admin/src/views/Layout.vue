@@ -10,6 +10,51 @@ import {
     CaretBottom
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
+import { adminUserInfoService } from '@/api/admin';
+import useAdminUserInfoStore from '@/stores/adminUserInfo';
+import { useTokenStore } from '@/stores/token';
+import { useRouter } from 'vue-router';
+import { ElMessage,ElMessageBox } from 'element-plus';
+
+const tokenStore = useTokenStore()
+const adminUserInfoStore = useAdminUserInfoStore()
+const router =useRouter()
+
+const getAdminUserInfo=async()=>{
+    let result = await adminUserInfoService()
+    adminUserInfoStore.setInfo(result.data)
+}
+getAdminUserInfo()
+
+const handleCommand=(command)=>{
+    if(command==='logout'){
+        ElMessageBox.confirm(
+            'ログアウトしますか？',
+            '警告',
+            {
+                confirmButtonText:'ログアウト',
+                cancelButtonText:'キャンセル',
+                type:'warning'
+            }
+        ).then(async()=>{
+            tokenStore.removeToken()
+            adminUserInfoStore.removeInfo()
+
+            router.push('/login')
+            ElMessage({
+                type:'success',
+                message:'ログアウト成功'
+            })
+        }).catch(()=>{
+            ElMessage({
+                type:'info',
+                message:'キャンセル'
+            })
+        })
+    }else{
+        router.push("/"+command)
+    }
+}
 </script>
 
 <template>
@@ -63,10 +108,10 @@ import avatar from '@/assets/default.png'
         <el-container>
             <!-- 头部区域 -->
             <el-header>
-                <div>管理者：<strong>xlsan</strong></div>
+                <div>管理者：<strong>{{ adminUserInfoStore.info.username }}</strong></div>
                 <el-dropdown placement="bottom-end" @command="handleCommand">
                     <span class="el-dropdown_box">
-                        <el-avatar :src="avatar" />
+                        <el-avatar :src="adminUserInfoStore.info.userPic?adminUserInfoStore.info.userPic:avatar" />
                         <el-icon>
                             <CaretBottom />
                         </el-icon>
@@ -75,7 +120,7 @@ import avatar from '@/assets/default.png'
                         <el-dropdown-menu>
                             <el-dropdown-item command="info" :icon="User">管理者情報</el-dropdown-item>
                             <el-dropdown-item command="avatar" :icon="Crop">アバター更新</el-dropdown-item>
-                            <el-dropdown-item command="resetPassword" :icon="EditPen">パスワード更新</el-dropdown-item>
+                            <el-dropdown-item command="resetpass" :icon="EditPen">パスワード更新</el-dropdown-item>
                             <el-dropdown-item command="logout" :icon="SwitchButton">ログアウト</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -129,6 +174,14 @@ import avatar from '@/assets/default.png'
                 outline: none;
             }
         }
+    }
+
+    .el-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #666;
     }
 }
 </style>
