@@ -15,7 +15,7 @@ instance.interceptors.response.use(
         if(result.data.code===0){
             return result.data;
         }
-        ElMessage.error(result.data.message?result.data.message:'Service Error')
+        ElMessage.error(result.data.msg?result.data.msg:'Service Error')
         return Promise.reject(result.data);
     },
     err=>{
@@ -23,7 +23,7 @@ instance.interceptors.response.use(
             ElMessage.error('ログインして下さい')
             router.push('/login')
         }else{
-            ElMessage.error('サービスエラー')
+            ElMessage.error('Service Error')
         }
         return Promise.reject(err);//异步的状态转化成失败的状态
     }

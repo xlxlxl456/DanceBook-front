@@ -5,8 +5,8 @@ import {
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import { ref } from 'vue';
-import { teacherListService,addTeacherService,updateTeacherService } from '@/api/teacher';
-import { ElMessage } from 'element-plus';
+import { teacherListService,addTeacherService,updateTeacherService,deleteTeacherService } from '@/api/teacher';
+import { ElMessage,ElMessageBox } from 'element-plus';
 
 const teachers=ref([])
 const visibleDrawer=ref(false)
@@ -65,9 +65,8 @@ const rules={
 }
 
 const addTeacher=async()=>{
-    title.value = '教師追加'
     let result = await addTeacherService(teacherModel.value)
-    ElMessage.success(result.message?result.message:'追加成功')
+    ElMessage.success(result.msg?result.msg:'追加成功')
 
     visibleDrawer.value=false
     teacherList()
@@ -85,10 +84,41 @@ const showTeacherDetail=(row)=>{
 
 const updateTeacher=async()=>{
     let result = await updateTeacherService(teacherModel.value)
-    ElMessage.success(result.message?result.message:'更新成功')
+    ElMessage.success(result.msg?result.msg:'更新成功')
 
     teacherList()
     visibleDrawer.value = false
+}
+
+const clearTeacherModelData=()=>{
+    teacherModel.value.username=''
+    teacherModel.value.phone=''
+    teacherModel.value.email=''
+    teacherModel.value.userPic=''
+}
+
+const deleteTeacher=async(row)=>{
+    ElMessageBox.confirm(
+        'こちらの教師を削除しますか？',
+        '警告',
+        {
+            confirmButtonText:'削除',
+            cancelButtonText:'キャンセル',
+            type:'warning'
+        }
+    ).then(async()=>{
+        let result = await deleteTeacherService(row.id)
+        ElMessage({
+            type:'success',
+            message:'削除成功'
+        })
+        teacherList()
+    }).catch(()=>{
+        ElMessage({
+            type:'info',
+            message:'キャンセル'
+        })
+    })
 }
 </script>
 
@@ -98,7 +128,7 @@ const updateTeacher=async()=>{
             <div class="header">
                 <span>教師一覧</span>
                 <div class="extra">
-                    <el-button type="primary" @click="visibleDrawer=true">教師追加</el-button>
+                    <el-button type="primary" @click="visibleDrawer=true;title='教師追加';clearTeacherModelData()">教師追加</el-button>
                 </div>
             </div>
         </template>
@@ -182,7 +212,7 @@ const updateTeacher=async()=>{
                     <el-input v-model="teacherModel.userPic"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="titel=='教師追加'?addTeacher():updateTeacher()">登録</el-button>
+                    <el-button type="primary" @click="title=='教師追加'?addTeacher():updateTeacher()">登録</el-button>
                     <el-button type="info" @click="visibleDrawer=false">キャンセル</el-button>
                 </el-form-item>
             </el-form>

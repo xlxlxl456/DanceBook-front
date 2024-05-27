@@ -11,3 +11,7 @@ export const addTeacherService=(teacherData)=>{
 export const updateTeacherService=(teacherData)=>{
     return request.put('/teacher',teacherData)
 }
+
+export const deleteTeacherService=(id)=>{
+    return request.delete('/teacher?id='+id)
+}

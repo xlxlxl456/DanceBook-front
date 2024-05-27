@@ -27,7 +27,7 @@ const rules={
 
 const login=async()=>{
     let result = await adminUserLoginService(loginData.value)
-    ElMessage.success(result.message?result.message:"ログイン成功")
+    ElMessage.success(result.msg?result.msg:"ログイン成功")
     tokenStore.setToken(result.data)
     router.push("/")
 }
