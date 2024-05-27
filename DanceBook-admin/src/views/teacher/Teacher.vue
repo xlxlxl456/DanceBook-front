@@ -7,6 +7,9 @@ import avatar from '@/assets/default.png'
 import { ref } from 'vue';
 import { teacherListService,addTeacherService,updateTeacherService,deleteTeacherService } from '@/api/teacher';
 import { ElMessage,ElMessageBox } from 'element-plus';
+import { useTokenStore } from '@/stores/token';
+
+const tokenStore = useTokenStore();
 
 const teachers=ref([])
 const visibleDrawer=ref(false)
@@ -88,6 +91,10 @@ const updateTeacher=async()=>{
 
     teacherList()
     visibleDrawer.value = false
+}
+
+const uploadSuccess = (result)=>{
+    teacherModel.value.userPic = result.data;
 }
 
 const clearTeacherModelData=()=>{
@@ -209,7 +216,20 @@ const deleteTeacher=async(row)=>{
                     <el-input v-model="teacherModel.email" placeholder="メールを入力してください"></el-input>
                 </el-form-item>
                 <el-form-item label="アバター" prop="userPic">
-                    <el-input v-model="teacherModel.userPic"></el-input>
+                    <!-- <el-input v-model="teacherModel.userPic"></el-input> -->
+                    <el-upload 
+                        ref="uploadRef"
+                        class="avatar-uploader" 
+                        :show-file-list="false"
+                        :auto-upload="true"
+                        action="/api/s3/upload"
+                        name="file"
+                        :headers="{'Authorization':tokenStore.token}"
+                        :on-success="uploadSuccess"
+                        >
+                        <img v-if="teacherModel.userPic" :src="teacherModel.userPic" class="avatar" />
+                        <img v-else :src="avatar" width="278" />
+                    </el-upload>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="title=='教師追加'?addTeacher():updateTeacher()">登録</el-button>
@@ -229,6 +249,36 @@ const deleteTeacher=async(row)=>{
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+}
+.avatar-uploader {
+    :deep() {
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
+
+        .el-upload {
+            border: 1px dashed var(--el-border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: var(--el-transition-duration-fast);
+        }
+
+        .el-upload:hover {
+            border-color: var(--el-color-primary);
+        }
+
+        .el-icon.avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            text-align: center;
+        }
     }
 }
 </style>
